@@ -8,7 +8,6 @@ from racecar_ws.msg import drive_msg
 from sensor_msgs.msg import Joy
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray
-import time
 
 AUTONOMOUS_MODE=False
 count = 0
