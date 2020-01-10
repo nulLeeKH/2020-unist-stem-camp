@@ -18,8 +18,8 @@ print("Complete to open Drive Node")
 class PIDControl:
     def __init__(self):
         self.Kp = 6
-        self.Ki = 0.0003
-        self.Kd = 0.3
+        self.Ki = 0.0009
+        self.Kd = 18
 
         self.p = 0
         self.i = 0
@@ -76,22 +76,20 @@ class Drive:
 
     def drive_callback(self):
         '''Publishes drive commands'''
-        time.sleep(0.1)
-        left = (drvCalc.findLeast(self.data[49:200]) - 0.1) * 100
-        right = (drvCalc.findLeast(self.data[299:450]) - 0.1) * 100
+        left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+        right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
 
-        front = (drvCalc.findLeast(self.data[0:50] + self.data[450:500]) - 0.18) * 100
+        front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        self.cmd.velocity = 255
-
-        PIDAngle = PID.PIDCalc(left-right, 0.0001)
-
-        print(PIDAngle)
+        PIDAngle = PID.PIDCalc(left-right, 0.01)
 
         if PIDAngle > 255:
             PIDAngle = 255
         elif PIDAngle < -255:
             PIDAngle = -255
+
+
+        self.cmd.velocity = 255
 
         self.cmd.drive_angle = PIDAngle
 
