@@ -100,7 +100,7 @@ class Drive:
 
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if self.ml_data[0] == 0 or front > 120:
+        if self.ml_data[0] == 0 or front > 150:
             PIDAngle = PID.PIDCalc(left-right, 0.01)
 
             if PIDAngle > 255:
