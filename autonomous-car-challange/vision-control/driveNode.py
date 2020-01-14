@@ -86,12 +86,13 @@ class Drive:
         self.drive_callback()
 
     def machine_learning_callback(self, msg):
-        self.ml_data = [0, msg[0]]
+        '''machine_learning_callbac'''
+        self.ml_data = [0, msg.data[0]]
         for i in range(1,3):
-            if self.ml_data[1] < msg[i]:
-                self.ml_data = [i, msg[i]]
+            if self.ml_data[1] < msg.data[i]:
+                self.ml_data = [i, msg.data[i]]
+        print(self.ml_data)
         self.drive_callback()
-        '''machine_learning_callback'''
 
     def drive_callback(self):
         '''Publishes drive commands'''
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
         PID = PIDControl(6, 0.0009, 18)
-	linePID = PIDControl(3, 0.0009, 9)
+    linePID = PIDControl(3, 0.0009, 9)
         node = Drive()
         rospy.spin()
     except rospy.ROSInterruptException:
