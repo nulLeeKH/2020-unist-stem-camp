@@ -91,7 +91,6 @@ class Drive:
         for i in range(1,3):
             if self.ml_data[1] < msg.data[i]:
                 self.ml_data = [i, msg.data[i]]
-        print(self.ml_data)
         self.drive_callback()
 
     def drive_callback(self):
