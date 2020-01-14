@@ -114,11 +114,9 @@ class Drive:
         elif self.ml_data[0] == 1:
             self.cmd.drive_angle = -255
             self.cmd.velocity = 255
-            time.sleep(1)
         elif self.ml_data[0] == 2:
             self.cmd.drive_angle = 255
             self.cmd.velocity = 255
-            time.sleep(1)
 
         self.drive_pub.publish(self.cmd)
 
