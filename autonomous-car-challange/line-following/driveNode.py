@@ -89,37 +89,37 @@ class Drive:
 
     def drive_callback(self):
         '''Publishes drive commands'''
-	if self.flag_box == ((0,0),(0,0)):
-		left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
-		right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+    	if self.flag_box == ((0,0),(0,0)):
+    		left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+    		right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
 
-		front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
+    		front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-		PIDAngle = PID.PIDCalc(left-right, 0.01)
+    		PIDAngle = PID.PIDCalc(left-right, 0.01)
 
-		if PIDAngle > 255:
-		    PIDAngle = 255
-		elif PIDAngle < -255:
-		    PIDAngle = -255
-
-
-		self.cmd.velocity = 255
-
-		self.cmd.drive_angle = PIDAngle
-	else:
-		error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
-
-		PIDAngle = linePID.PIDCalc(error, 0.01)
-
-		if PIDAngle > 255:
-		    PIDAngle = 255
-		elif PIDAngle < -255:
-		    PIDAngle = -255
+    		if PIDAngle > 255:
+    		    PIDAngle = 255
+    		elif PIDAngle < -255:
+    		    PIDAngle = -255
 
 
-		self.cmd.velocity = 255
+    		self.cmd.velocity = 255
 
-		self.cmd.drive_angle = PIDAngle
+    		self.cmd.drive_angle = PIDAngle
+    	else:
+    		error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
+
+    		PIDAngle = linePID.PIDCalc(error, 0.01)
+
+    		if PIDAngle > 255:
+    		    PIDAngle = 255
+    		elif PIDAngle < -255:
+    		    PIDAngle = -255
+
+
+    		self.cmd.velocity = 255
+
+    		self.cmd.drive_angle = PIDAngle
 
 
 
