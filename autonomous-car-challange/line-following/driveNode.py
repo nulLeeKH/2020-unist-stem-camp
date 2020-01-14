@@ -55,7 +55,7 @@ class Drive:
     def __init__(self):
         rospy.init_node("potentialField")
         self.data = None
-	self.flag_box = ((0,0),(0,0))
+        self.flag_box = ((0,0),(0,0))
         self.bridge = CvBridge()
         self.cmd = drive_msg()
         self.camera_sub = rospy.Subscriber("/camera", Image, self.camera_callback)
