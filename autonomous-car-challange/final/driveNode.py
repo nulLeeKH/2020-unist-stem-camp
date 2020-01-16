@@ -125,7 +125,7 @@ class Drive:
                     PIDAngle = -255
         elif self.drive_flag == 1:
             if self.flag_box == ((0,0),(0,0)):
-                PIDAngle = PID.PIDCalc(left-60, 0.01)
+                PIDAngle = PID.PIDCalc(left-30, 0.01)
 
                 if PIDAngle > 255:
                     PIDAngle = 255
@@ -142,7 +142,7 @@ class Drive:
                     PIDAngle = -255
         elif self.drive_flag == 2:
             if self.flag_box == ((0,0),(0,0)):
-                PIDAngle = PID.PIDCalc(60-right, 0.01)
+                PIDAngle = PID.PIDCalc(30-right, 0.01)
 
                 if PIDAngle > 255:
                     PIDAngle = 255
