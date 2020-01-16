@@ -114,6 +114,7 @@ class Drive:
                 elif self.ml_data[0] == 2:
                     PIDAngle = -255
                 elif self.ml_data[0] == 4:
+                    left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
                     PIDAngle = PID.PIDCalc(left-9, 0.01)
                 else:
                     left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
