@@ -96,7 +96,7 @@ class Drive:
         '''Publishes drive commands'''
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if front < 25:
+        if front < 15:
             self.cmd.velocity = -255
             self.cmd.drive_angle = 0
         else:
@@ -106,7 +106,7 @@ class Drive:
                     right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
 
                     PIDAngle = PID.PIDCalc(left-right, 0.01)
-                if self.ml_data[0] == 1:
+                elif self.ml_data[0] == 1:
                     PIDAngle = 255
                 elif self.ml_data[0] == 2:
                     PIDAngle = -255
