@@ -96,9 +96,14 @@ class Drive:
         '''Publishes drive commands'''
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if front < 15:
+        if front < 9:
+            left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+            right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+
+            PIDAngle = PID.PIDCalc(right-left, 0.01)
+
             self.cmd.velocity = -255
-            self.cmd.drive_angle = 0
+            self.cmd.drive_angle = PIDAngle
         else:
             if self.flag_box == ((0,0),(0,0)):
                 if self.ml_data[0] == 0:
@@ -131,7 +136,7 @@ class Drive:
 if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
-        PID = PIDControl(9, 0.0009, 36)
+        PID = PIDControl(9, 0.0009, 33)
         turnPID = PIDControl(12, 0.0009, 39)
         linePID = PIDControl(3, 0.0009, 9)
         node = Drive()
