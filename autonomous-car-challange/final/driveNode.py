@@ -42,13 +42,11 @@ class PIDControl:
 
 class driveCalculator():
     def findLeast(self, value):
-        least = 10
+        least = 3
         for i in range(len(value)):
             if value[i] != 0:
                 if value[i]<least:
                     least = value[i]
-        if least == 10:
-            least = 0
         return least
 
 class Drive:
@@ -133,7 +131,7 @@ class Drive:
 if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
-        PID = PIDControl(9, 0.0009, 33)
+        PID = PIDControl(9, 0.0009, 36)
         turnPID = PIDControl(12, 0.0009, 39)
         linePID = PIDControl(3, 0.0009, 9)
         node = Drive()
