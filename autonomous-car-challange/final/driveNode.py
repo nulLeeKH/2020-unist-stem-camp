@@ -110,9 +110,9 @@ class Drive:
         else:
             if self.flag_box == ((0,0),(0,0)):
                 if self.ml_data[0] == 1:
-                    PIDAngle = -255
-                elif self.ml_data[0] == 2:
                     PIDAngle = 255
+                elif self.ml_data[0] == 2:
+                    PIDAngle = -255
                 elif self.ml_data[0] == 4:
                     PIDAngle = PID.PIDCalc(left-9, 0.01)
                 else:
