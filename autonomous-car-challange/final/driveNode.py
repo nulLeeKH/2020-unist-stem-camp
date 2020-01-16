@@ -96,8 +96,8 @@ class Drive:
 
     def drive_callback(self):
         '''Publishes drive commands'''
-        left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
-        right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+        left = (drvCalc.findLeast(self.data[74:125]) - 0.1) * 100
+        right = (drvCalc.findLeast(self.data[374:425]) - 0.1) * 100
 
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
