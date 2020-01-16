@@ -97,7 +97,7 @@ class Drive:
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
         if front < 25:
-            self.cmd.drive_angle = -255
+            self.cmd.velocity = -255
             self.cmd.drive_angle = 0
         else:
             if self.flag_box == ((0,0),(0,0)):
