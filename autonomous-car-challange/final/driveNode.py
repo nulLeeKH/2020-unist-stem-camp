@@ -98,15 +98,17 @@ class Drive:
         '''Publishes drive commands'''
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if front < 5:
+        if front < 15:
             self.cmd.drive_angle = -255
             self.cmd.drive_angle = 0
         else:
             if self.flag_box == ((0,0),(0,0)):
                 if self.ml_data[0] == 1:
                     self.drive_flag = 1
+                    self.mode_count = 0
                 elif self.ml_data[0] == 2:
                     self.drive_flag = 2
+                    self.mode_count = 0
 
                 if self.drive_flag == 0:
                     left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
@@ -117,10 +119,18 @@ class Drive:
                     left = (drvCalc.findLeast(self.data[74:125]) - 0.1) * 100
 
                     PIDAngle = turnPID.PIDCalc(left-45, 0.01)
+
+                    self.mode_count += 1
+                    if self.mode_count == 150:
+                        self.drive_flag = 0
                 elif self.drive_flag == 2:
                     right = (drvCalc.findLeast(self.data[374:425]) - 0.1) * 100
 
                     PIDAngle = turnPID.PIDCalc(45-right, 0.01)
+
+                    self.mode_count += 1
+                    if self.mode_count == 150:
+                        self.drive_flag = 0
             else:
                 error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
 
