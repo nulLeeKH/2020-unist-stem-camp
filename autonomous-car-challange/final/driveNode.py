@@ -56,6 +56,8 @@ class Drive:
         rospy.init_node("potentialField")
         self.data = None
         self.flag_box = ((0,0),(0,0))
+        self.ml_data = [0, 1]
+        self.drive_flag = 0
         self.bridge = CvBridge()
         self.cmd = drive_msg()
         self.camera_sub = rospy.Subscriber("/camera", Image, self.camera_callback)
@@ -86,40 +88,63 @@ class Drive:
 
     def machine_learning_callback(self, msg):
         '''machine_learning_callback'''
+        self.ml_data = [0, msg.data[0]]
+        for i in range(1,5):
+            if self.ml_data[1] < msg.data[i]:
+                self.ml_data = [i, msg.data[i]]
+        self.drive_callback()
 
     def drive_callback(self):
         '''Publishes drive commands'''
-    	if self.flag_box == ((0,0),(0,0)):
-    		left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
-    		right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+        left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+        right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
 
-    		front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
+        front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-    		PIDAngle = PID.PIDCalc(left-right, 0.01)
+        if self.ml_data[0] == 0 or self.ml_data[0] == 1:
+            self.drive_flag = 0
+        elif self.ml_data[0] == 2:
+            self.drive_flag = 1
 
-    		if PIDAngle > 255:
-    		    PIDAngle = 255
-    		elif PIDAngle < -255:
-    		    PIDAngle = -255
+        if self.drive_flag == 0:
+            if self.flag_box == ((0,0),(0,0)):
+                PIDAngle = PID.PIDCalc(left-60, 0.01)
+
+                if PIDAngle > 255:
+                    PIDAngle = 255
+                elif PIDAngle < -255:
+                    PIDAngle = -255
+            else:
+                error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
+
+                PIDAngle = linePID.PIDCalc(error, 0.01)
+
+                if PIDAngle > 255:
+                    PIDAngle = 255
+                elif PIDAngle < -255:
+                    PIDAngle = -255
+        elif self.drive_flag == 1:
+            if self.flag_box == ((0,0),(0,0)):
+                PIDAngle = PID.PIDCalc(60-right, 0.01)
+
+                if PIDAngle > 255:
+                    PIDAngle = 255
+                elif PIDAngle < -255:
+                    PIDAngle = -255
+            else:
+                error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
+
+                PIDAngle = linePID.PIDCalc(error, 0.01)
+
+                if PIDAngle > 255:
+                    PIDAngle = 255
+                elif PIDAngle < -255:
+                    PIDAngle = -255
 
 
-    		self.cmd.velocity = 255
+		self.cmd.velocity = 255
 
-    		self.cmd.drive_angle = PIDAngle
-    	else:
-    		error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
-
-    		PIDAngle = linePID.PIDCalc(error, 0.01)
-
-    		if PIDAngle > 255:
-    		    PIDAngle = 255
-    		elif PIDAngle < -255:
-    		    PIDAngle = -255
-
-
-    		self.cmd.velocity = 255
-
-    		self.cmd.drive_angle = PIDAngle
+		self.cmd.drive_angle = PIDAngle
 
 
 
