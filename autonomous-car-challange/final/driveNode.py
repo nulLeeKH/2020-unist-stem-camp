@@ -56,6 +56,7 @@ class Drive:
         self.flag_box = ((0,0),(0,0))
         self.ml_data = [0, 1]
         self.drive_flag = 0
+        self.drive_time = 0
         self.bridge = CvBridge()
         self.cmd = drive_msg()
         self.camera_sub = rospy.Subscriber("/camera", Image, self.camera_callback)
@@ -71,6 +72,7 @@ class Drive:
     def scan_callback(self, data):
         '''Checks LIDAR data'''
         self.data = data.ranges
+        self.drive_time += 1
         self.drive_callback()
 
     def camera_callback(self, msg):
@@ -90,61 +92,80 @@ class Drive:
         for i in range(1,5):
             if self.ml_data[1] < msg.data[i]:
                 self.ml_data = [i, msg.data[i]]
-        self.drive_callback()
 
     def drive_callback(self):
         '''Publishes drive commands'''
-        front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
+        if self.drive_flag == 0:
+            front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if self.ml_data[0] == 4:
-            self.cmd.drive_angle = 0
-            self.cmd.velocity = 255
+            if self.ml_data[0] == 4:
+                self.drive_flag = 1
+                self.drive_time = 0
+                print("in")
+
+            elif front < 15:
+                left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+                right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+
+                PIDAngle = PID.PIDCalc(right-left, 0.01)
+
+                if PIDAngle < 0:
+                    self.cmd.drive_angle = -255
+                elif PIDAngle > 0:
+                    self.cmd.drive_angle = 255
+                self.cmd.velocity = -255
+            else:
+                if self.flag_box == ((0,0),(0,0)):
+                    if self.ml_data[0] == 1:
+                        PIDAngle = 255
+                    elif self.ml_data[0] == 2:
+                        PIDAngle = -255
+                    else:
+                        left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+                        right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+
+                        PIDAngle = PID.PIDCalc(left-right, 0.01)
+                else:
+                    error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
+
+                    PIDAngle = linePID.PIDCalc(error, 0.01)
+
+                if PIDAngle > 255:
+                    self.cmd.drive_angle = 255
+                elif PIDAngle < -255:
+                    self.cmd.drive_angle = -255
+                else:
+                    self.cmd.drive_angle = PIDAngle
+
+                self.cmd.velocity = 255
 
             self.drive_pub.publish(self.cmd)
-            time.sleep(0.1)
-        elif front < 15:
-            left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
-            right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
-
-            PIDAngle = PID.PIDCalc(right-left, 0.01)
-
-            if PIDAngle < 0:
-                self.cmd.drive_angle = -255
-            elif PIDAngle > 0:
-                self.cmd.drive_angle = 255
-            self.cmd.velocity = -255
         else:
-            if self.flag_box == ((0,0),(0,0)):
-                if self.ml_data[0] == 1:
-                    PIDAngle = 255
-                elif self.ml_data[0] == 2:
-                    PIDAngle = -255
+            if self.drive_time >= 30:
+                self.drive_flag = 0
+                print("out")
+            else:
+                left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
+
+                PIDAngle = PID.PIDCalc(left-15, 0.01)
+
+                if PIDAngle > 255:
+                    self.cmd.drive_angle = 255
+                elif PIDAngle < -255:
+                    self.cmd.drive_angle = -255
                 else:
-                    left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
-                    right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
+                    self.cmd.drive_angle = PIDAngle
 
-                    PIDAngle = PID.PIDCalc(left-right, 0.01)
-            else:
-                error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
+                self.cmd.velocity = 255
 
-                PIDAngle = linePID.PIDCalc(error, 0.01)
-
-            if PIDAngle > 255:
-                self.cmd.drive_angle = 255
-            elif PIDAngle < -255:
-                self.cmd.drive_angle = -255
-            else:
-                self.cmd.drive_angle = PIDAngle
-
-            self.cmd.velocity = 255
-
-        self.drive_pub.publish(self.cmd)
+                self.drive_pub.publish(self.cmd)
+                
 
 
 if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
-        PID = PIDControl(9, 0.0009, 39)
+        PID = PIDControl(9, 0.0009, 33)
         linePID = PIDControl(3, 0.0009, 9)
         node = Drive()
         rospy.spin()
