@@ -94,7 +94,7 @@ class Drive:
 
     def drive_callback(self):
         '''Publishes drive commands'''
-    front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
+        front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
         if self.ml_data[0] == 4:
             self.cmd.drive_angle = 0
