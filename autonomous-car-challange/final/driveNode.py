@@ -94,32 +94,36 @@ class Drive:
 
     def drive_callback(self):
         '''Publishes drive commands'''
-        front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
+    front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if front < 9:
+        if front < 15 and self.ml_data[0] != 4:
             left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
             right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
 
             PIDAngle = PID.PIDCalc(right-left, 0.01)
 
+            if PIDAngle < 0:
+                self.cmd.drive_angle = -255
+            elif PIDAngle > 0:
+                self.cmd.drive_angle = 255
             self.cmd.velocity = -255
-            self.cmd.drive_angle = PIDAngle
         else:
             if self.flag_box == ((0,0),(0,0)):
-                if self.ml_data[0] == 0:
+                if self.ml_data[0] == 1:
+                    PIDAngle = -255
+                elif self.ml_data[0] == 2:
+                    PIDAngle = 255
+                elif self.ml_data[0] == 4:
+                    PIDAngle = PID.PIDCalc(left-5, 0.01)
+                else:
                     left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
                     right = (drvCalc.findLeast(self.data[399:465]) - 0.1) * 100
 
                     PIDAngle = PID.PIDCalc(left-right, 0.01)
-                elif self.ml_data[0] == 1:
-                    PIDAngle = 255
-                elif self.ml_data[0] == 2:
-                    PIDAngle = -255
             else:
                 error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
 
                 PIDAngle = linePID.PIDCalc(error, 0.01)
-
 
             if PIDAngle > 255:
                 self.cmd.drive_angle = 255
@@ -136,8 +140,7 @@ class Drive:
 if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
-        PID = PIDControl(9, 0.0009, 33)
-        turnPID = PIDControl(12, 0.0009, 39)
+        PID = PIDControl(9, 0.0009, 39)
         linePID = PIDControl(3, 0.0009, 9)
         node = Drive()
         rospy.spin()
