@@ -101,12 +101,29 @@ class Drive:
 
         front = (drvCalc.findLeast(self.data[0:34] + self.data[465:500]) - 0.15) * 100
 
-        if self.ml_data[0] == 0 or self.ml_data[0] == 1:
-            self.drive_flag = 0
-        elif self.ml_data[0] == 2:
+        if self.ml_data[0] == 1:
             self.drive_flag = 1
+        elif self.ml_data[0] == 2:
+            self.drive_flag = 2
 
         if self.drive_flag == 0:
+            if self.flag_box == ((0,0),(0,0)):
+                PIDAngle = PID.PIDCalc(left-right, 0.01)
+
+                if PIDAngle > 255:
+                    PIDAngle = 255
+                elif PIDAngle < -255:
+                    PIDAngle = -255
+            else:
+                error = 320 - (self.flag_box[0][0] + self.flag_box[1][0]) / 2
+
+                PIDAngle = linePID.PIDCalc(error, 0.01)
+
+                if PIDAngle > 255:
+                    PIDAngle = 255
+                elif PIDAngle < -255:
+                    PIDAngle = -255
+        elif self.drive_flag == 1:
             if self.flag_box == ((0,0),(0,0)):
                 PIDAngle = PID.PIDCalc(left-60, 0.01)
 
@@ -123,7 +140,7 @@ class Drive:
                     PIDAngle = 255
                 elif PIDAngle < -255:
                     PIDAngle = -255
-        elif self.drive_flag == 1:
+        elif self.drive_flag == 2:
             if self.flag_box == ((0,0),(0,0)):
                 PIDAngle = PID.PIDCalc(60-right, 0.01)
 
@@ -154,8 +171,8 @@ class Drive:
 if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
-        PID = PIDControl(9, 0.0009, 33)
-	linePID = PIDControl(3, 0.0009, 9)
+        PID = PIDControl(12, 0.0009, 39)
+        linePID = PIDControl(3, 0.0009, 9)
         node = Drive()
         rospy.spin()
     except rospy.ROSInterruptException:
