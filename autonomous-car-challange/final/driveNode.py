@@ -67,7 +67,7 @@ class PIDControl:
 
 class driveCalculator():
     def findLeast(self, value):
-        least = 3
+        least = 9
         for i in range(len(value)):
             if value[i] != 0:
                 if value[i]<least:
@@ -126,7 +126,6 @@ class Drive:
             if self.ml_data[0] == 4:
                 self.drive_flag = 1
                 self.drive_time = 0
-                print("in")
 
             elif front < 15:
                 left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
@@ -140,10 +139,10 @@ class Drive:
                     self.cmd.drive_angle = 255
                 self.cmd.velocity = -255
             else:
-                if self.flag_box == ((0,0),(0,0)):
+                if self.flag_box == ((0,0),(0,0)) or self.flag_box[1][0]-self.flag_box[0][0] < 27:
                     if self.ml_data[0] == 1:
                         PIDAngle = 255
-                    elif self.ml_data[0] == 2:
+                    if self.ml_data[0] == 2:
                         PIDAngle = -255
                     else:
                         left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
@@ -162,17 +161,16 @@ class Drive:
                 else:
                     self.cmd.drive_angle = PIDAngle
 
-                self.cmd.velocity = 255
+                self.cmd.velocity = 231
 
             self.drive_pub.publish(self.cmd)
         else:
             if self.drive_time >= 30:
                 self.drive_flag = 0
-                print("out")
             else:
                 left = (drvCalc.findLeast(self.data[34:100]) - 0.1) * 100
 
-                PIDAngle = PID.PIDCalc(left-15, 0.01)
+                PIDAngle = washPID.PIDCalc(left-18, 0.01)
 
                 if PIDAngle > 255:
                     self.cmd.drive_angle = 255
@@ -181,7 +179,7 @@ class Drive:
                 else:
                     self.cmd.drive_angle = PIDAngle
 
-                self.cmd.velocity = 255
+                self.cmd.velocity = 231
 
                 self.drive_pub.publish(self.cmd)
                 
@@ -190,8 +188,9 @@ class Drive:
 if __name__ == "__main__":
     try:
         drvCalc = driveCalculator()
-        PID = PIDControl(9, 0.0009, 33)
-        linePID = PIDControl(3, 0.0009, 9)
+        PID = PIDControl(7.4, 0.0009, 33)
+        washPID = PIDControl(6, 0.0009, 9)
+        linePID = PIDControl(3, 0.0009, 0)
         node = Drive()
         rospy.spin()
     except rospy.ROSInterruptException:
