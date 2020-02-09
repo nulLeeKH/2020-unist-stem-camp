@@ -3,4 +3,4 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/nulLeeKH/2020-unist-stem-camp.svg)
 
 # 2020-unist-stem-camp
-The repository for 2020 UNIST Stem Camp.
+The repository for 2020 UNIST Stem Camp
